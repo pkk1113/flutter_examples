@@ -5,6 +5,8 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  var switchValue = false;
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -22,15 +24,16 @@ class MyApp extends StatelessWidget {
           // is not restarted.
           primarySwatch: Colors.blue,
         ),
-        // home: MyHomePage(title: 'Flutter Demo Home Page'),
-        home: Container(
-            color: Colors.teal[200],
-            child: Center(
-                child: Text(
-              "hello\nFlutter",
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.orange[600], fontSize: 50),
-            ))));
+        darkTheme: ThemeData.light(),
+        home: Scaffold(
+            body: Center(
+          child: Switch(
+            value: switchValue,
+            onChanged: (value) {
+              switchValue = value;
+            },
+          ),
+        )));
   }
 }
 
