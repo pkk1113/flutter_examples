@@ -30,12 +30,12 @@ class _MyApp extends State<MyApp> {
                       if (test == "hello") {
                         setState(() {
                           test = "world";
-                          color = Colors.red[400];
+                          color = Colors.amber[700];
                         });
                       } else {
                         setState(() {
                           test = "hello";
-                          color = Colors.amber[700];
+                          color = Colors.red[400];
                         });
                       }
                     },
