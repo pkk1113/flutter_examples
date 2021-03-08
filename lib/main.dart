@@ -14,6 +14,7 @@ class MyApp extends StatefulWidget {
 class _MyApp extends State<MyApp> {
   var switchValue = false;
   String test = "hello";
+  Color color = Colors.red[400];
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +24,22 @@ class _MyApp extends State<MyApp> {
         darkTheme: ThemeData.light(),
         home: Scaffold(
             body: Center(
-          child: ElevatedButton(child: Text("$test"), onPressed: () {}),
-        )));
+                child: ElevatedButton(
+                    child: Text("$test"),
+                    onPressed: () {
+                      if (test == "hello") {
+                        setState(() {
+                          test = "world";
+                          color = Colors.red[400];
+                        });
+                      } else {
+                        setState(() {
+                          test = "hello";
+                          color = Colors.amber[700];
+                        });
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                        primary: this.color, minimumSize: Size(300, 300))))));
   }
 }
