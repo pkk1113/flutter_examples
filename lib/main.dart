@@ -1,77 +1,115 @@
-/// Flutter code sample for ReorderableListView
-
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-void main() => runApp(const MyApp());
+void main() => runApp(GetMaterialApp(home: App()));
 
-/// This is the main application widget.
-class MyApp extends StatelessWidget {
-  const MyApp({Key key}) : super(key: key);
+class Item {
+  String str;
+  Item({this.str});
+}
 
-  static const String _title = 'Flutter Code Sample';
+class Controller extends GetxController {
+  static Controller get to => Get.find();
+  RxList<Item> items = RxList<Item>();
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: _title,
-      home: Scaffold(
-        appBar: AppBar(title: const Text(_title)),
-        body: const MyStatefulWidget(),
-      ),
-    );
+  void onInit() {
+    items
+      ..add(Item(str: '감자'))
+      ..add(Item(str: '냉이'))
+      ..add(Item(str: '된장'))
+      ..add(Item(str: '라면'))
+      ..add(Item(str: '미역'));
+
+    debounce(items, (_) => print('!!'), time: Duration(seconds: 2));
+    super.onInit();
   }
 }
 
-/// This is the stateful widget that the main application instantiates.
-class MyStatefulWidget extends StatefulWidget {
-  const MyStatefulWidget({Key key}) : super(key: key);
-
-  @override
-  _MyStatefulWidgetState createState() => _MyStatefulWidgetState();
-}
-
-/// This is the private State class that goes with MyStatefulWidget.
-class _MyStatefulWidgetState extends State<MyStatefulWidget> {
-  final List<int> _items = List<int>.generate(10, (int index) => index);
-
+class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final Color oddItemColor = colorScheme.primary.withOpacity(0.05);
-    final Color evenItemColor = colorScheme.primary.withOpacity(0.15);
+    final ctrl = Get.put(Controller());
+    String str;
+    print('App!!');
 
-    return ReorderableListView(
-      buildDefaultDragHandles: false,
-      padding: const EdgeInsets.symmetric(horizontal: 40),
-      children: <Widget>[
-        for (int index = 0; index < _items.length; index++)
-          ListTile(
-            key: Key('$index'),
-            tileColor: _items[index].isOdd ? oddItemColor : evenItemColor,
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Item ${_items[index]}'),
-                ReorderableDragStartListener(
-                  index: index,
-                  child: const Icon(
-                    Icons.drag_handle,
-                    size: 40,
+    return Scaffold(
+      appBar: AppBar(title: Text('테스트!')),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () {
+          Get.dialog(
+              AlertDialog(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.0)),
+                contentPadding: EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 15),
+                content: SizedBox(
+                  width: 0,
+                  child: ListView(
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    children: [
+                      TextField(
+                        onChanged: (value) {
+                          print(value);
+                          return str = value;
+                        },
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                              child: OutlinedButton(
+                                  onPressed: () {
+                                    Get.back();
+                                  },
+                                  child: Text('취소'))),
+                          SizedBox(width: 5),
+                          Expanded(
+                              child: OutlinedButton(
+                                  onPressed: () {
+                                    ctrl.items.add(Item(str: str));
+                                    Get.back();
+                                  },
+                                  child: Text('확인'))),
+                        ],
+                      )
+                    ],
                   ),
                 ),
-              ],
-            ),
-          ),
-      ],
-      onReorder: (int oldIndex, int newIndex) {
-        setState(() {
-          if (oldIndex < newIndex) {
-            newIndex -= 1;
-          }
-          final int item = _items.removeAt(oldIndex);
-          _items.insert(newIndex, item);
-        });
-      },
+              ),
+              barrierDismissible: true);
+        },
+      ),
+      body: Obx(
+        () => ReorderableListView.builder(
+          itemBuilder: (context, index) {
+            return Container(
+              padding: EdgeInsets.all(10.0),
+              key: Key('$index'),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(ctrl.items[index].str),
+                  ReorderableDragStartListener(
+                      child: const Icon(
+                        Icons.drag_handle,
+                        size: 30,
+                      ),
+                      index: index)
+                ],
+              ),
+            );
+          },
+          itemCount: ctrl.items.length,
+          onReorder: (oldIndex, newIndex) {
+            if (oldIndex < newIndex) {
+              newIndex -= 1;
+            }
+            final item = ctrl.items.removeAt(oldIndex);
+            ctrl.items.insert(newIndex, item);
+          },
+        ),
+      ),
     );
   }
 }
