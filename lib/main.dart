@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/pages/test_fittedbox_page.dart';
 import 'package:flutter_application_1/pages/test_keyboard.dart';
 import 'package:flutter_application_1/pages/test_mixin_page.dart';
+import 'package:flutter_application_1/pages/test_singlechildscrollview.dart';
 import 'package:get/get.dart';
 
 void main() => runApp(GetMaterialApp(home: Main()));
@@ -18,6 +19,7 @@ class Main extends StatelessWidget {
             _buildButton(TestFittedBoxPage()),
             _buildButton(TestMixinPage()),
             _buildButton(TestKeyboard()),
+            _buildButton(TestSingleChildScrollerView()),
           ],
         ),
       ),
