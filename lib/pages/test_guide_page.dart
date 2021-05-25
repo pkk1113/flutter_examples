@@ -36,7 +36,7 @@ class TestGuidePage extends GetView<TestGuidePageController> {
   @override
   Widget build(BuildContext context) {
     return Obx(() => IgnorePointer(
-          ignoring: controller.globalkeySet.value,
+          ignoring: !controller.globalkeySet.value,
           child: Stack(
             children: [
               Scaffold(
