@@ -33,7 +33,11 @@ class Main extends StatelessWidget {
 
   _buildButton(Widget page, {Bindings binding}) {
     return OutlinedButton(
-      onPressed: () => Get.to(() => page, transition: Transition.rightToLeft, binding: binding),
+      onPressed: () => Get.to(
+        () => page,
+        transition: Transition.rightToLeft,
+        binding: binding,
+      ),
       child: Text(page.toStringShort()),
     );
   }
