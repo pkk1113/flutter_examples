@@ -3,11 +3,11 @@ import 'package:get/get.dart';
 
 class TestGetxSnackbarController extends GetxController with SingleGetTickerProviderMixin {
   static TestGetxSnackbarController get to => Get.find();
-  static const _keeyDurationMilliseconds = 3000;
-  static const _animatedDurationMilliseconds = 300;
+  static const _keeyDurationMilliseconds = 3000.0;
+  static const _animatedDurationMilliseconds = 1000.0;
   static const _durationMilliseconds =
       _keeyDurationMilliseconds + 2 * _animatedDurationMilliseconds;
-  static const Duration _duration = Duration(milliseconds: _durationMilliseconds);
+  static final Duration _duration = Duration(milliseconds: _durationMilliseconds.toInt());
 
   Animation _animation;
   AnimationController _animationController;
@@ -16,16 +16,13 @@ class TestGetxSnackbarController extends GetxController with SingleGetTickerProv
   RxString title = ''.obs;
   RxString body = ''.obs;
   RxDouble animationValue = 0.0.obs;
-  double get opacity => animationValue.value < 0.1
-      ? animationValue.value * 10.0
-      : animationValue.value > 0.9
-          ? (1.0 - animationValue.value) * 10.0
+  double get _curve => animationValue.value < _animatedDurationMilliseconds
+      ? animationValue.value / _animatedDurationMilliseconds
+      : animationValue.value > (_durationMilliseconds - _animatedDurationMilliseconds)
+          ? (_durationMilliseconds - animationValue.value) / _animatedDurationMilliseconds
           : 1.0;
-  double get offsetY => animationValue.value < 0.1
-      ? animationValue.value * 100
-      : animationValue.value > 0.9
-          ? (1.0 - animationValue.value) * 100
-          : 10.0;
+  double get opacity => _curve * 1.0;
+  double get offsetY => _curve * 10.0;
 
   Future<void> showSnackbar(
     String title,
@@ -41,9 +38,10 @@ class TestGetxSnackbarController extends GetxController with SingleGetTickerProv
   @override
   void onInit() {
     _animationController = AnimationController(vsync: this, duration: _duration);
-    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_animationController)
+    _animation = Tween<double>(begin: 0.0, end: _durationMilliseconds).animate(_animationController)
       ..addListener(() {
         animationValue.value = _animation.value;
+        print(_curve);
       });
     super.onInit();
   }
@@ -82,6 +80,7 @@ class TestGetxSnackbar extends GetView<TestGetxSnackbarController> {
                         onPressed: () => controller.showSnackbar('제목', '내용5\n내용5\n내용5\n내용5\n내용5'),
                         child: Text('스낵바5')),
                     ElevatedButton(onPressed: back, child: Text('뒤로 가기')),
+                    Obx(() => Text('${controller.animationValue}')),
                   ],
                 ),
               ),
