@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 class TestGetxSnackbarController extends GetxController with SingleGetTickerProviderMixin {
   static TestGetxSnackbarController get to => Get.find();
   static const _keeyDurationMilliseconds = 3000.0;
-  static const _animatedDurationMilliseconds = 1000.0;
+  static const _animatedDurationMilliseconds = 300.0;
   static const _durationMilliseconds =
       _keeyDurationMilliseconds + 2 * _animatedDurationMilliseconds;
   static final Duration _duration = Duration(milliseconds: _durationMilliseconds.toInt());
@@ -41,7 +41,6 @@ class TestGetxSnackbarController extends GetxController with SingleGetTickerProv
     _animation = Tween<double>(begin: 0.0, end: _durationMilliseconds).animate(_animationController)
       ..addListener(() {
         animationValue.value = _animation.value;
-        print(_curve);
       });
     super.onInit();
   }
@@ -80,7 +79,7 @@ class TestGetxSnackbar extends GetView<TestGetxSnackbarController> {
                         onPressed: () => controller.showSnackbar('제목', '내용5\n내용5\n내용5\n내용5\n내용5'),
                         child: Text('스낵바5')),
                     ElevatedButton(onPressed: back, child: Text('뒤로 가기')),
-                    Obx(() => Text('${controller.animationValue}')),
+                    Obx(() => Text('${controller.animationValue.toInt()}')),
                   ],
                 ),
               ),
