@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/pages/test_appbar.dart';
 import 'package:flutter_application_1/pages/test_fittedbox_page.dart';
+import 'package:flutter_application_1/pages/test_getx_snackbar.dart';
 import 'package:flutter_application_1/pages/test_guide_page.dart';
 import 'package:flutter_application_1/pages/test_keyboard.dart';
 import 'package:flutter_application_1/pages/test_mixin_page.dart';
@@ -25,6 +26,8 @@ class Main extends StatelessWidget {
             _buildButton(TestAppBarPage()),
             _buildButton(TestGuidePage(),
                 binding: BindingsBuilder.put(() => TestGuidePageController())),
+            _buildButton(TestGetxSnackbar(),
+                binding: BindingsBuilder.put(() => TestGetxSnackbarController())),
           ],
         ),
       ),
