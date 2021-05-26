@@ -16,13 +16,14 @@ class TestGetxSnackbarController extends GetxController with SingleGetTickerProv
   RxString title = ''.obs;
   RxString body = ''.obs;
   RxDouble animationValue = 0.0.obs;
+  RxDouble dragY = 0.0.obs;
   double get _curve => animationValue.value < _animatedDurationMilliseconds
       ? animationValue.value / _animatedDurationMilliseconds
       : animationValue.value > (_durationMilliseconds - _animatedDurationMilliseconds)
           ? (_durationMilliseconds - animationValue.value) / _animatedDurationMilliseconds
           : 1.0;
   double get opacity => _curve * 1.0;
-  double get offsetY => _curve * 10.0;
+  double get offsetY => _curve * 30.0;
 
   Future<void> showSnackbar(
     String title,
@@ -41,6 +42,17 @@ class TestGetxSnackbarController extends GetxController with SingleGetTickerProv
     _animation = Tween<double>(begin: 0.0, end: _durationMilliseconds).animate(_animationController)
       ..addListener(() {
         animationValue.value = _animation.value;
+      })
+      ..addStatusListener((status) {
+        switch (status) {
+          case AnimationStatus.forward:
+          case AnimationStatus.reverse:
+          case AnimationStatus.dismissed:
+            break;
+          case AnimationStatus.completed:
+            dragY.value = 0.0;
+            break;
+        }
       });
     super.onInit();
   }
@@ -49,6 +61,21 @@ class TestGetxSnackbarController extends GetxController with SingleGetTickerProv
   void onClose() {
     _animationController.dispose();
     super.onClose();
+  }
+
+  void stop() {
+    _animationController.stop();
+  }
+
+  void close() {
+    showMessaging.value = false;
+    _animationController.reset();
+    dragY.value = 0.0;
+  }
+
+  void enter() {
+    print('~~~');
+    close();
   }
 }
 
@@ -61,27 +88,25 @@ class TestGetxSnackbar extends GetView<TestGetxSnackbarController> {
           appBar: AppBar(title: Text('Test Snackbar'), centerTitle: true),
           body: Container(
             child: Center(
-              child: FittedBox(
-                child: Column(
-                  children: [
-                    ElevatedButton(
-                        onPressed: () => controller.showSnackbar('제목', '내용1'), child: Text('스낵바1')),
-                    ElevatedButton(
-                        onPressed: () => controller.showSnackbar('제목', '내용2\n내용2'),
-                        child: Text('스낵바2')),
-                    ElevatedButton(
-                        onPressed: () => controller.showSnackbar('제목', '내용3\n내용3\n내용3'),
-                        child: Text('스낵바3')),
-                    ElevatedButton(
-                        onPressed: () => controller.showSnackbar('제목', '내용4\n내용4\n내용4\n내용4'),
-                        child: Text('스낵바4')),
-                    ElevatedButton(
-                        onPressed: () => controller.showSnackbar('제목', '내용5\n내용5\n내용5\n내용5\n내용5'),
-                        child: Text('스낵바5')),
-                    ElevatedButton(onPressed: back, child: Text('뒤로 가기')),
-                    Obx(() => Text('${controller.animationValue.toInt()}')),
-                  ],
-                ),
+              child: Column(
+                children: [
+                  ElevatedButton(
+                      onPressed: () => controller.showSnackbar('제목', '내용1'), child: Text('스낵바1')),
+                  ElevatedButton(
+                      onPressed: () => controller.showSnackbar('제목', '내용2\n내용2'),
+                      child: Text('스낵바2')),
+                  ElevatedButton(
+                      onPressed: () => controller.showSnackbar('제목', '내용3\n내용3\n내용3'),
+                      child: Text('스낵바3')),
+                  ElevatedButton(
+                      onPressed: () => controller.showSnackbar('제목', '내용4\n내용4\n내용4\n내용4'),
+                      child: Text('스낵바4')),
+                  ElevatedButton(
+                      onPressed: () => controller.showSnackbar('제목', '내용5\n내용5\n내용5\n내용5\n내용5'),
+                      child: Text('스낵바5')),
+                  ElevatedButton(onPressed: back, child: Text('뒤로 가기')),
+                  Obx(() => Text('${controller.animationValue.toInt()}')),
+                ],
               ),
             ),
           ),
@@ -93,14 +118,27 @@ class TestGetxSnackbar extends GetView<TestGetxSnackbarController> {
                   Obx(() => Opacity(
                         opacity: controller.opacity,
                         child: Transform.translate(
-                          offset: Offset(0, controller.offsetY),
-                          child: Draggable(
-                            axis: Axis.vertical,
-                            feedback: _buildSnackbar(),
-                            child: GestureDetector(
-                                onTap: () => print('hello~'), child: _buildSnackbar()),
-                            onDragStarted: () => controller.showMessaging.value = false,
-                          ),
+                          offset: Offset(0, controller.offsetY + controller.dragY.value),
+                          child: GestureDetector(
+                              behavior: HitTestBehavior.translucent,
+                              onTap: controller.enter,
+                              onTapDown: (details) {
+                                controller.stop();
+                              },
+                              onVerticalDragStart: (details) {
+                                controller.stop();
+                              },
+                              onVerticalDragUpdate: (details) {
+                                controller.dragY.value += details.delta.dy;
+                                if (controller.dragY.value > 0.0) controller.dragY.value = 0.0;
+                              },
+                              onVerticalDragEnd: (details) {
+                                if (controller.dragY.value > 10.0)
+                                  controller.close();
+                                else
+                                  controller.enter();
+                              },
+                              child: _buildSnackbar()),
                         ),
                       )),
                   Spacer(),
